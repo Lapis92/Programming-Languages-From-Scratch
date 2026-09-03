@@ -1,0 +1,51 @@
+// Test 1: Do undefined values evaluate to true or false? 
+var empty;
+var full = "full";
+
+if(empty) {
+	print "The variable 'empty' has the value: " + empty;
+}
+else {
+	print "The variable 'empty' is undefined";
+}
+
+if(full) {
+	print "The variable 'full' has the value: " + full;
+}
+else {
+	print "The variable 'full' is undefined";
+}
+// Result: undefined = false, defined = true
+
+// Test 2: does copying objects copy the content, or just the reference?
+class Car {
+	init(color, make, model) {
+		this.color = color;
+		this.make = make;
+		this.model = model;
+	}
+	printInfo() {
+		print this.color + " " + this.make + " " + this.model;
+	}
+}
+
+var car1 = Car("Orange", "Tesla", "Cybertruck");
+var car2 = car1;
+car1.printInfo();
+car2.printInfo();
+car1.color = "Red";
+car1.printInfo();
+car2.printInfo();
+// Result: the reference is copied as evidenced by both cars being "Red" after changing only car1
+
+// Test 3: String comparison for alphabetical order
+var str1 = "Apple";
+var str2 = "Orange";
+
+if(str1 > str2) {
+	print "Apple > Orange";
+}
+else {
+	print "Apple < Orange";
+}
+// Result: error because '<' only takes numbers
