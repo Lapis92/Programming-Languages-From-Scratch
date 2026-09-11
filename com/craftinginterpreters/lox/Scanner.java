@@ -84,7 +84,11 @@ class Scanner {
         if (match('/')) {
           // A comment goes until the end of the line.
           while (peek() != '\n' && !isAtEnd()) advance();
-        } else {
+        } else if (match('*')) {
+          // A multi-line comment that goes until the next "*/" is found.
+          while (peek() != '/' && peekNext() != '*' && !isAtEnd()) advance();
+        }
+        else {
           addToken(SLASH);
         }
         break;
