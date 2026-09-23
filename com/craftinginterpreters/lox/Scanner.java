@@ -53,7 +53,6 @@ class Scanner {
   private void scanToken() {
     char c = advance();
     switch (c) {
-      // Basic 1-character lexemes
       case '(': addToken(LEFT_PAREN); break;
       case ')': addToken(RIGHT_PAREN); break;
       case '{': addToken(LEFT_BRACE); break;
@@ -63,9 +62,7 @@ class Scanner {
       case '-': addToken(MINUS); break;
       case '+': addToken(PLUS); break;
       case ';': addToken(SEMICOLON); break;
-      case '*': addToken(STAR); break;
-
-      // 2-character lexemes: !=, ==, <=, >=
+      case '*': addToken(STAR); break; 
       case '!':
         addToken(match('=') ? BANG_EQUAL : BANG);
         break;
@@ -77,23 +74,16 @@ class Scanner {
         break;
       case '>':
         addToken(match('=') ? GREATER_EQUAL : GREATER);
-        break; 
-
-      // Comments
+        break;
       case '/':
         if (match('/')) {
           // A comment goes until the end of the line.
           while (peek() != '\n' && !isAtEnd()) advance();
-        } else if (match('*')) {
-          // A multi-line comment that goes until the next "*/" is found.
-          while (peek() != '/' && peekNext() != '*' && !isAtEnd()) advance();
-        }
-        else {
+        } else {
           addToken(SLASH);
         }
         break;
-      
-      // Whitespace: space, return, tab, newline
+
       case ' ':
       case '\r':
       case '\t':
@@ -103,11 +93,9 @@ class Scanner {
       case '\n':
         line++;
         break;
-      
-      // Scanning strings
+
       case '"': string(); break;
 
-      // Unexpected character
       default:
         if (isDigit(c)) {
           number();
@@ -176,7 +164,6 @@ class Scanner {
     return source.charAt(current);
   }
 
-  // In the case of decimal lexemes, look past the decimal without consuming it yet
   private char peekNext() {
     if (current + 1 >= source.length()) return '\0';
     return source.charAt(current + 1);
