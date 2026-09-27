@@ -7,13 +7,28 @@ import static com.craftinginterpreters.lox.TokenType.*;
 
 class Parser {
   private static class ParseError extends RuntimeException {}
-
-
   private final List<Token> tokens;
   private int current = 0;
+  private boolean replPrint;
+  private boolean parsedExpr = false;
 
   Parser(List<Token> tokens) {
     this.tokens = tokens;
+  }
+
+  Object replParse() {
+    replPrint = true;
+    List<Stmt> statements = new ArrayList<>();
+    while (!isAtEnd()) {
+      statements.add(declaration());
+
+      if (parsedExpr) {
+        // return the last expression instead of treating it like a stmt
+        return ((Stmt.Expression) statements.get(statements.size() - 1)).expression;
+      }
+      parsedExpr = false;
+    }
+    return statements;
   }
 
   List<Stmt> parse() {
@@ -67,7 +82,14 @@ class Parser {
 
   private Stmt expressionStatement() {
     Expr expr = expression();
+
+    // add a case for REPL parsing/printing
+    if(replPrint && isAtEnd()) {
+      parsedExpr = true;
+    } else {
     consume(SEMICOLON, "Expect ';' after expression.");
+    }
+    // return a statement no matter what
     return new Stmt.Expression(expr);
   }
 

@@ -5,6 +5,7 @@ import java.util.List;
 class Interpreter implements Expr.Visitor<Object>,
                              Stmt.Visitor<Void> {
   private Environment environment = new Environment();
+  private static Object uninit = new Object();
 
   void interpret(List<Stmt> statements) {
     try {
@@ -13,6 +14,17 @@ class Interpreter implements Expr.Visitor<Object>,
       }
     } catch (RuntimeError error) {
       Lox.runtimeError(error);
+    }
+  }
+
+  String interpret(Expr expression) {
+    // REPL version of interpret
+    try {
+      Object val = evaluate(expression);
+      return stringify(val);
+    } catch (RuntimeError e) {
+      Lox.runtimeError(e);
+      return null;
     }
   }
 
@@ -59,7 +71,7 @@ class Interpreter implements Expr.Visitor<Object>,
 
   @Override
   public Void visitVarStmt(Stmt.Var stmt) {
-    Object value = null;
+    Object value = uninit;
     if (stmt.initializer != null) {
       value = evaluate(stmt.initializer);
     }
@@ -149,7 +161,11 @@ class Interpreter implements Expr.Visitor<Object>,
 
   @Override
   public Object visitVariableExpr(Expr.Variable expr) {
-    return environment.get(expr.name);
+    Object val = environment.get(expr.name);
+    if (val == uninit) {
+      throw new RuntimeError(expr.name, "Uninitialized variable accessed!");
+    }
+    return val;
   }
 
   private void checkNumberOperand(Token operator, Object operand) {
