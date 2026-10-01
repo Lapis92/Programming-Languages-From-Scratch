@@ -1,7 +1,13 @@
-print "one";
-print true;
-print 2 + 1;
+fun whichFn(fn) {
+  print fn;
+}
 
-var a = 1;
-var b = 2;
-print a + b;
+whichFn(fun (b) {
+ print b;
+});
+
+fun named(a) { print a; }
+whichFn(named);
+//
+// <fn>
+// <fn named>
