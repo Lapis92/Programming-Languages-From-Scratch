@@ -13,6 +13,7 @@ public class GenerateAst {
     }
     String outputDir = args[0];
     defineAst(outputDir, "Expr", Arrays.asList(
+      "Function : List<Token> params, List<Stmt> body",
       "Assign   : Token name, Expr value",
       "Binary   : Expr left, Token operator, Expr right",
       "Call     : Expr callee, Token paren, List<Expr> arguments",
@@ -24,25 +25,25 @@ public class GenerateAst {
     ));
 
     defineAst(outputDir, "Stmt", Arrays.asList(
-      "Block      : List<Stmt> statements",
+      "Break      : ",
       "Expression : Expr expression",
-      "Function   : Token name, List<Token> params," +
-                  " List<Stmt> body",
+      "Function   : Token name, Expr.Function function",
       "If         : Expr condition, Stmt thenBranch," +
                   " Stmt elseBranch",
       "Print      : Expr expression",
       "Return     : Token keyword, Expr value",
       "Var        : Token name, Expr initializer",
-      "While      : Expr condition, Stmt body"
+      "While      : Expr condition, Stmt body",
+      "Block      : List<Stmt> statements"
     ));
   }
+
   private static void defineAst(
       String outputDir, String baseName, List<String> types)
       throws IOException {
     String path = outputDir + "/" + baseName + ".java";
     PrintWriter writer = new PrintWriter(path, "UTF-8");
 
-    writer.println("//> Appendix II " + baseName.toLowerCase());
     writer.println("package com.craftinginterpreters.lox;");
     writer.println();
     writer.println("import java.util.List;");
@@ -51,12 +52,10 @@ public class GenerateAst {
 
     defineVisitor(writer, baseName, types);
 
-    writer.println();
-    writer.println("  // Nested " + baseName + " classes here...");
     // The AST classes.
     for (String type : types) {
       String className = type.split(":")[0].trim();
-      String fields = type.split(":")[1].trim(); // [robust]
+      String fields = type.split(":")[1].trim(); 
       defineType(writer, baseName, className, fields);
     }
 
@@ -65,9 +64,9 @@ public class GenerateAst {
     writer.println("  abstract <R> R accept(Visitor<R> visitor);");
 
     writer.println("}");
-    writer.println("//< Appendix II " + baseName.toLowerCase());
     writer.close();
   }
+
   private static void defineVisitor(
       PrintWriter writer, String baseName, List<String> types) {
     writer.println("  interface Visitor<R> {");
@@ -80,26 +79,23 @@ public class GenerateAst {
 
     writer.println("  }");
   }
+
   private static void defineType(
       PrintWriter writer, String baseName,
       String className, String fieldList) {
-    writer.println("//> " +
-        baseName.toLowerCase() + "-" + className.toLowerCase());
     writer.println("  static class " + className + " extends " +
         baseName + " {");
-
-    // Hack. Stmt.Class has such a long constructor that it overflows
-    // the line length on the Appendix II page. Wrap it.
-    if (fieldList.length() > 64) {
-      fieldList = fieldList.replace(", ", ",\n          ");
-    }
 
     // Constructor.
     writer.println("    " + className + "(" + fieldList + ") {");
 
-    fieldList = fieldList.replace(",\n          ", ", ");
     // Store parameters in fields.
-    String[] fields = fieldList.split(", ");
+    String[] fields;
+    if (fieldList.isEmpty()) {
+      fields = new String[0];
+    } else {
+      fields = fieldList.split(", ");
+    }
     for (String field : fields) {
       String name = field.split(" ")[1];
       writer.println("      this." + name + " = " + name + ";");
@@ -122,28 +118,5 @@ public class GenerateAst {
     }
 
     writer.println("  }");
-    writer.println("//< " +
-        baseName.toLowerCase() + "-" + className.toLowerCase());
-  }
-  interface PastryVisitor {
-    void visitBeignet(Beignet beignet); // [overload]
-    void visitCruller(Cruller cruller);
-  }
-  abstract class Pastry {
-    abstract void accept(PastryVisitor visitor);
-  }
-
-  class Beignet extends Pastry {
-    @Override
-    void accept(PastryVisitor visitor) {
-      visitor.visitBeignet(this);
-    }
-  }
-
-  class Cruller extends Pastry {
-    @Override
-    void accept(PastryVisitor visitor) {
-      visitor.visitCruller(this);
-    }
   }
 }

@@ -1,10 +1,10 @@
-//> Appendix II expr
 package com.craftinginterpreters.lox;
 
 import java.util.List;
 
 abstract class Expr {
   interface Visitor<R> {
+    R visitFunctionExpr(Function expr);
     R visitAssignExpr(Assign expr);
     R visitBinaryExpr(Binary expr);
     R visitCallExpr(Call expr);
@@ -14,9 +14,20 @@ abstract class Expr {
     R visitUnaryExpr(Unary expr);
     R visitVariableExpr(Variable expr);
   }
+  static class Function extends Expr {
+    Function(List<Token> params, List<Stmt> body) {
+      this.params = params;
+      this.body = body;
+    }
 
-  // Nested Expr classes here...
-//> expr-assign
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitFunctionExpr(this);
+    }
+
+    final List<Token> params;
+    final List<Stmt> body;
+  }
   static class Assign extends Expr {
     Assign(Token name, Expr value) {
       this.name = name;
@@ -31,8 +42,6 @@ abstract class Expr {
     final Token name;
     final Expr value;
   }
-//< expr-assign
-//> expr-binary
   static class Binary extends Expr {
     Binary(Expr left, Token operator, Expr right) {
       this.left = left;
@@ -49,8 +58,6 @@ abstract class Expr {
     final Token operator;
     final Expr right;
   }
-//< expr-binary
-//> expr-call
   static class Call extends Expr {
     Call(Expr callee, Token paren, List<Expr> arguments) {
       this.callee = callee;
@@ -67,8 +74,6 @@ abstract class Expr {
     final Token paren;
     final List<Expr> arguments;
   }
-//< expr-call
-//> expr-grouping
   static class Grouping extends Expr {
     Grouping(Expr expression) {
       this.expression = expression;
@@ -81,8 +86,6 @@ abstract class Expr {
 
     final Expr expression;
   }
-//< expr-grouping
-//> expr-literal
   static class Literal extends Expr {
     Literal(Object value) {
       this.value = value;
@@ -95,8 +98,6 @@ abstract class Expr {
 
     final Object value;
   }
-//< expr-literal
-//> expr-logical
   static class Logical extends Expr {
     Logical(Expr left, Token operator, Expr right) {
       this.left = left;
@@ -113,8 +114,6 @@ abstract class Expr {
     final Token operator;
     final Expr right;
   }
-//< expr-logical
-//> expr-unary
   static class Unary extends Expr {
     Unary(Token operator, Expr right) {
       this.operator = operator;
@@ -129,8 +128,6 @@ abstract class Expr {
     final Token operator;
     final Expr right;
   }
-//< expr-unary
-//> expr-variable
   static class Variable extends Expr {
     Variable(Token name) {
       this.name = name;
@@ -143,8 +140,6 @@ abstract class Expr {
 
     final Token name;
   }
-//< expr-variable
 
   abstract <R> R accept(Visitor<R> visitor);
 }
-//< Appendix II expr
