@@ -1,0 +1,2 @@
+var str = "The wolf jumped over the fence!";
+print substring(str, 4, 8);
