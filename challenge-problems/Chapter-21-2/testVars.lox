@@ -1,0 +1,6 @@
+var val1 = "apple";
+print val1;
+val1 = "orange";
+print val1;
+var empty = nil;
+print empty;
