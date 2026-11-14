@@ -1,0 +1,5 @@
+print sqrt(16);
+
+print sqrt(20);
+
+print sqrt("hello");
